@@ -114,13 +114,34 @@ func closeConn(c net.Conn) {
 }
 
 func getDistFeedUrlForCheck() (string, error) {
+	if canAccessPath("/etc/apk/repositories.d/distfeeds.list") {
+		return getApkDistFeedUrlForCheck()
+	} else {
+		return getOpkgDistFeedUrlForCheck()
+	}
+}
+
+func getApkDistFeedUrlForCheck() (string, error) {
+	// get first line starts with http of /etc/apk/repositories.d/distfeeds.list
+	buf, err := ioutil.ReadFile("/etc/apk/repositories.d/distfeeds.list")
+	if err != nil {
+		return "", err
+	}
+	found := matchStringOnce(string(buf), `(?m)^(https?:\/\/.*\/base\/packages\.adb)$`)
+	if found == nil {
+		return "", errors.New("apk feed not found")
+	}
+	return found[1] + ".asc", nil
+}
+
+func getOpkgDistFeedUrlForCheck() (string, error) {
 	buf, err := ioutil.ReadFile("/etc/opkg/distfeeds.conf")
 	if err != nil {
 		return "", err
 	}
 	found := matchStringOnce(string(buf), `(?m)_base\s+(https?:\/\/.*[^\/])\/?$`)
 	if found == nil {
-		return "", errors.New("feed not found")
+		return "", errors.New("opkg feed not found")
 	}
 	return found[1] + "/Packages.sig", nil
 }

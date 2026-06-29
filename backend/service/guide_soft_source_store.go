@@ -50,7 +50,7 @@ func (reader *defaultGuideSoftSourceReader) ReadCurrentSource(ctx context.Contex
 	}
 	parsed, err := url.Parse(feedURL)
 	if err != nil {
-		return nil, errors.New("解析istoreos_base软件源信息失败")
+		return nil, errors.New("解析base软件源信息失败")
 	}
 
 	normalizedURL := fmt.Sprintf("%v://%v/openwrt/", parsed.Scheme, parsed.Host)
@@ -62,24 +62,35 @@ func (reader *defaultGuideSoftSourceReader) ReadCurrentSource(ctx context.Contex
 }
 
 func readGuideSoftSourceFeedURL(path string) (string, error) {
-	content, err := readGuideSoftSourceFile(path)
-	if err != nil {
-		return "", err
+	if canAccessPath("/etc/apk/repositories.d/distfeeds.list") {
+		buf, err := readGuideSoftSourceFile("/etc/apk/repositories.d/distfeeds.list")
+		if err != nil {
+			return "", err
+		}
+		return getApkDistFeedUrlByContent(string(buf))
+	} else {
+		buf, err := readGuideSoftSourceFile("/etc/opkg/distfeeds.conf")
+		if err != nil {
+			return "", err
+		}
+		return getOpkgDistFeedUrlByContent(string(buf))
 	}
-	return readGuideSoftSourceFeedURLByContent(string(content))
 }
 
-func readGuideSoftSourceFeedURLByContent(content string) (string, error) {
+func getApkDistFeedUrlByContent(content string) (string, error) {
+	found := matchStringOnce(content, `(?m)^(https?:\/\/[^\/]*\/(openwrt\/)?).*\/base\/packages\.adb$`)
+	if found == nil {
+		return "", errors.New("apk feed not found")
+	}
+	return found[1], nil
+}
+
+func getOpkgDistFeedUrlByContent(content string) (string, error) {
 	found := matchStringOnce(content, `_base\s+(https?:\/\/[^\/]*\/(openwrt\/)?)`)
 	if found == nil {
 		return "", errors.New("feed not found")
 	}
 	return found[1], nil
-}
-
-// Legacy compatibility shim for existing tests and any remaining call sites.
-func getDistFeedUrlByContent(content string) (string, error) {
-	return readGuideSoftSourceFeedURLByContent(content)
 }
 
 type defaultGuideSoftSourceWriter struct {
@@ -88,9 +99,16 @@ type defaultGuideSoftSourceWriter struct {
 }
 
 func newDefaultGuideSoftSourceWriter() *defaultGuideSoftSourceWriter {
-	return &defaultGuideSoftSourceWriter{
-		sourcePath: "/rom/etc/opkg/distfeeds.conf",
-		targetPath: "/etc/opkg/distfeeds.conf",
+	if canAccessPath("/etc/apk/repositories.d/distfeeds.list") {
+		return &defaultGuideSoftSourceWriter{
+			sourcePath: "/rom/etc/apk/repositories.d/distfeeds.list",
+			targetPath: "/etc/apk/repositories.d/distfeeds.list",
+		}
+	} else {
+		return &defaultGuideSoftSourceWriter{
+			sourcePath: "/rom/etc/opkg/distfeeds.conf",
+			targetPath: "/etc/opkg/distfeeds.conf",
+		}
 	}
 }
 

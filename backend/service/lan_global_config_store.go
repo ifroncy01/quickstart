@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/digineo/go-uci"
@@ -58,7 +57,7 @@ func (reader *defaultSpeedLimitReader) ReadSpeedLimitStatus(ctx context.Context)
 	upload, _ := uci.GetLast("eqos", "@eqos[0]", "upload")
 	download, _ := uci.GetLast("eqos", "@eqos[0]", "download")
 
-	installed := canAccessPath(fmt.Sprintf("/usr/lib/opkg/info/%v.control", "luci-app-eqos"))
+	installed, _ := CheckAppIsInstalled("luci-app-eqos")
 	return buildSpeedLimitStatus(installed, enabled, upload, download), nil
 }
 

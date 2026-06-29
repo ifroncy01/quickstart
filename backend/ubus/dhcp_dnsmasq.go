@@ -68,7 +68,7 @@ func (u *Ubus) DHCPIPv4Leases(id int) (DHCPIPv4Leases, error) {
 	call, err := u.Call(jsonStr)
 	if err != nil {
 		if strings.Compare(err.Error(), "Object not found") == 0 {
-			return DHCPIPv4Leases{}, errors.New("File module not found, try 'opkg update && opkg install rpcd-mod-file && service rpcd restart'")
+			return DHCPIPv4Leases{}, errors.New("File module not found, try 'is-opkg install rpcd-mod-file && service rpcd restart'")
 		}
 		return DHCPIPv4Leases{}, err
 	}

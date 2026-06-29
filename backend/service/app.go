@@ -46,31 +46,18 @@ func AppInstallValue(ctx context.Context, req models.AppInstallRequest) (*models
 }
 
 // 检查是否已安装插件
-// opkg find name
 func CheckAppIsInstalled(name string) (bool, error) {
-	//忽略其他软件配置的错误输出
-	return canAccessPath(fmt.Sprintf("/usr/lib/opkg/info/%v.control", name)), nil
-	// cmd := exec.Command("opkg", "-V0", "find", name)
-	// var out bytes.Buffer
-	// var errbuf bytes.Buffer
-	// cmd.Stdout = &out
-	// cmd.Stderr = &errbuf
-	// err := cmd.Run()
-	// if err != nil {
-	// 	return canAccessPath(fmt.Sprintf("/usr/lib/opkg/info/%v.control", name)), nil
-	// 	// return false, errors.New("opkg find " + name + " err")
-	// }
-	// if errbuf.String() != "" {
-	// 	return false, errors.New(errbuf.String())
-	// }
-	// if out.String() != "" {
-	// 	return true, nil
-	// }
-	// return false, errors.New("not found " + name)
+	var pathTemplate string
+	if canAccessPath("/etc/apk/repositories.d/distfeeds.list") {
+		pathTemplate = "/lib/apk/packages/%v.list"
+	} else {
+		pathTemplate = "/usr/lib/opkg/info/%v.control"
+	}
+	return canAccessPath(fmt.Sprintf(pathTemplate, name)), nil
 }
 
 // 安装插件
-// opkg install name
+// is-opkg install name
 func InstallApp(name string) (string, error) {
 	go func() {
 		cmd := exec.Command("is-opkg", "install", name)
@@ -213,7 +200,7 @@ func (appStore) Install(ctx context.Context, name string) (string, error) {
 }
 
 func (appStore) InstalledList(ctx context.Context) ([]*models.AppInstalled, error) {
-	return readApplistFromPath("/usr/lib/opkg/meta")
+	return readApplistFromPath("/tmp/run/istore-meta/meta")
 }
 
 func readApplistFromPath(p string) ([]*models.AppInstalled, error) {

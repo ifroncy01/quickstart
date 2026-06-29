@@ -59,7 +59,7 @@ func (u *Ubus) FileExec(id int, command string, params []string) (UbusExec, erro
 	call, err := u.Call(jsonStr)
 	if err != nil {
 		if strings.Compare(err.Error(), "Object not found") == 0 {
-			return UbusExec{}, errors.New("File module not found, try 'opkg update && opkg install rpcd-mod-file && service rpcd restart'")
+			return UbusExec{}, errors.New("File module not found, try 'is-opkg install rpcd-mod-file && service rpcd restart'")
 		}
 		return UbusExec{}, err
 	}
@@ -99,7 +99,7 @@ func (u *Ubus) FileWrite(id int, path string, data string, append bool, mode int
 	_, err := u.Call(jsonStr)
 	if err != nil {
 		if strings.Compare(err.Error(), "Object not found") == 0 {
-			return errors.New("File module not found, try 'opkg update && opkg install rpcd-mod-file && service rpcd restart'")
+			return errors.New("File module not found, try 'is-opkg install rpcd-mod-file && service rpcd restart'")
 		}
 		return err
 	}
@@ -129,7 +129,7 @@ func (u *Ubus) FileRead(id int, path string) (UbusFile, error) {
 	call, err := u.Call(jsonStr)
 	if err != nil {
 		if strings.Compare(err.Error(), "Object not found") == 0 {
-			return UbusFile{}, errors.New("File module not found, try 'opkg update && opkg install rpcd-mod-file && service rpcd restart'")
+			return UbusFile{}, errors.New("File module not found, try 'is-opkg install rpcd-mod-file && service rpcd restart'")
 		}
 		return UbusFile{}, err
 	}
@@ -165,7 +165,7 @@ func (u *Ubus) FileStat(id int, path string) (UbusFileStat, error) {
 	call, err := u.Call(jsonStr)
 	if err != nil {
 		if strings.Compare(err.Error(), "Object not found") == 0 {
-			return UbusFileStat{}, errors.New("File module not found, try 'opkg update && opkg install rpcd-mod-file && service rpcd restart'")
+			return UbusFileStat{}, errors.New("File module not found, try 'is-opkg install rpcd-mod-file && service rpcd restart'")
 		}
 		return UbusFileStat{}, err
 	}
@@ -201,7 +201,7 @@ func (u *Ubus) FileList(id int, path string) (UbusFileList, error) {
 	call, err := u.Call(jsonStr)
 	if err != nil {
 		if strings.Compare(err.Error(), "Object not found") == 0 {
-			return UbusFileList{}, errors.New("File module not found, try 'opkg update && opkg install rpcd-mod-file && service rpcd restart'")
+			return UbusFileList{}, errors.New("File module not found, try 'is-opkg install rpcd-mod-file && service rpcd restart'")
 		}
 		return UbusFileList{}, err
 	}

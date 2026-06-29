@@ -81,7 +81,7 @@ func TestDefaultGuideSoftSourceReaderListSourcesPreservesCatalog(t *testing.T) {
 func TestReadGuideSoftSourceFeedURLByContent(t *testing.T) {
 	t.Parallel()
 
-	url, err := readGuideSoftSourceFeedURLByContent("src/gz istoreos_base https://mirrors.aliyun.com/openwrt/packages/base\n")
+	url, err := getOpkgDistFeedUrlByContent("src/gz istoreos_base https://mirrors.aliyun.com/openwrt/packages/base\n")
 	if err != nil {
 		t.Fatalf("unexpected parse error: %v", err)
 	}
@@ -93,7 +93,7 @@ func TestReadGuideSoftSourceFeedURLByContent(t *testing.T) {
 func TestReadGuideSoftSourceFeedURLByContentReturnsLegacyErrorWhenMissing(t *testing.T) {
 	t.Parallel()
 
-	_, err := readGuideSoftSourceFeedURLByContent("src/gz something else\n")
+	_, err := getOpkgDistFeedUrlByContent("src/gz something else\n")
 	if err == nil || err.Error() != "feed not found" {
 		t.Fatalf("unexpected missing feed error: %v", err)
 	}

@@ -44,7 +44,7 @@ func (u *Ubus) AuthLogin(username, password string) (UbusResponse, error) {
 	call, err := u.Call(jsonStr)
 	if err != nil {
 		if strings.Compare(err.Error(), "404 Not Found") == 0 {
-			return UbusResponse{}, errors.New("Ubus module not installed, try 'opkg update && opkg install uhttpd-mod-ubus && service uhttpd restart'")
+			return UbusResponse{}, errors.New("Ubus module not installed, try 'is-opkg install uhttpd-mod-ubus && service uhttpd restart'")
 		}
 
 		return UbusResponse{}, err
